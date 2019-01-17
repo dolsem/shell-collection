@@ -1,0 +1,17 @@
+###########################################################################
+# Script Name	: theme
+# Description	: Quick changing Oh-My-Zsh theme
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: September 2018
+#
+# Distributed under MIT license
+# Copyright (c) 2019 Denis Semenenko
+###########################################################################
+
+#!/bin/zsh
+theme() {
+  source ~/.color-themes/$1
+  export ZSH_THEME=$1
+  source ~/.zshrc
+}

@@ -1,0 +1,14 @@
+###########################################################################
+# Script Name	: lynxmd
+# Description	: Viewing markdown in terminal with lynx and pandoc
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: September 2018
+#
+# Distributed under MIT license
+# Copyright (c) 2019 Denis Semenenko
+###########################################################################
+
+lynxmd () {
+  pandoc $@ | lynx -stdin 
+}

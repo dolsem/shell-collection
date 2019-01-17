@@ -1,0 +1,42 @@
+###########################################################################
+# Script Name	: git
+# Description	: git wrapper with a few useful commands
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: September 2018
+#
+# Distributed under MIT license
+# Copyright (c) 2019 Denis Semenenko
+###########################################################################
+
+git () {
+  GIT_EXEC_PATH=/usr/bin/git
+  case $1 in
+    s)
+      git status -s
+    ;;
+    cd)
+      git diff --cached $2
+    ;;
+    readd)
+      git add $(git diff --name-only --cached)
+    ;;
+    unstash)
+      git checkout stash@{0} -- "$2"
+    ;;
+    retrospect)
+      filename=$(basename -- "$2")
+      extension=$([[ "$filename" = *.* ]] && echo ".${filename##*.}")
+      basepath=$([[ -n $extension ]] && echo "${2%.*}" || echo $2)
+      new_path="${basepath}.new${extension}"
+
+      mv $2 $new_path
+      git checkout -- $2
+      diff -u --color=always $2 $new_path | less -r
+    ;;
+
+    *)
+      eval `printf "'%s' " "$GIT_EXEC_PATH" "$@"`
+    ;;
+  esac
+}

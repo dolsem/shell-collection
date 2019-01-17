@@ -1,0 +1,14 @@
+###########################################################################
+# Script Name	: gdiff
+# Description	: git-like diff
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: September 2018
+#
+# Distributed under MIT license
+# Copyright (c) 2019 Denis Semenenko
+###########################################################################
+
+gdiff () {
+  colordiff -u --color=always $@ | less -r
+}
