@@ -1,0 +1,18 @@
+###########################################################################
+# Script Name : spawn
+# Description : Spawn a process in terminal and disown completely.
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: January 2019
+#
+# Distributed under MIT license
+# Copyright (c) 2019 Denis Semenenko
+###########################################################################
+
+spawn() {
+    if [[ -n $1 ]]; then
+        nohup $@ &>/dev/null &
+    else
+        exit 1
+    fi
+}
