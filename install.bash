@@ -10,13 +10,15 @@
 # Copyright (c) 2019 Denis Semenenko
 ###########################################################################
 
+SCRIPT_DIR=$(dirname $0)
+HOME_DIR=$(realpath ~)
+
 #------< Imports >------#
-source ./utils/os.bash
-source ./utils/term.bash
-source ./utils/prompt.bash
+source "$SCRIPT_DIR"/utils/os.bash
+source "$SCRIPT_DIR"/utils/term.bash
+source "$SCRIPT_DIR"/utils/prompt.bash
 
 #------< Constants >------#
-HOME_DIR=$(realpath ~)
 FUNCTIONS_DIR=${HOME_DIR}/.functions
 
 FUNCTIONS_OPTION="Install shell functions"
@@ -80,10 +82,10 @@ install_functions() {
 
   # Copy functions
   mkdir -p $FUNCTIONS_DIR
-  cp -f ./functions/* $FUNCTIONS_DIR
+  cp -f "$SCRIPT_DIR"/functions/* $FUNCTIONS_DIR
 
   # Create index for sourcing
-  ls ./functions | xargs printf "source ${FUNCTIONS_DIR}/%s\n" > ${FUNCTIONS_DIR}/index
+  ls "$SCRIPT_DIR"/functions | xargs printf "source ${FUNCTIONS_DIR}/%s\n" > ${FUNCTIONS_DIR}/index
 
   # Add to rc file
   SOURCE_CMD="source ${FUNCTIONS_DIR}/index"
@@ -133,14 +135,16 @@ fi
 
 if [[ -z $1 ]]; then
   echo "Please select what you would like to install. Use <Space> to select/unselect, <Enter> to submit."
-  prompt_for_multiselect to_install "$OHMYZSH_OPTION;$FUNCTIONS_OPTION;$ENVVARS_OPTION" "true;true;true"
+  prompt_for_multiselect to_install \
+    "$OHMYZSH_OPTION;$FUNCTIONS_OPTION;$ENVVARS_OPTION" \
+    "true;true;true"
 else
   IFS=';' read -r -a to_install <<< "$1"
 fi
 
 INSTALL_OHMYZSH=${to_install[0]}
 INSTALL_FUNCTIONS=${to_install[1]}
-INSTALL_ENVVARS=${to_install[2]}
+INSTALL_ENVVARS=${to_install[3]}
 
 if [[ $INSTALL_OHMYZSH == true  ]]; then
   echo "==> Installing Oh-My-Zsh..." | blue
