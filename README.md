@@ -8,6 +8,8 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.
 #### Below is the list of items that can be installed with the installation script.
 - [**Oh My Zsh**][ohmyzsh-url]
 - **Shell functions**
+- **Setting extra environment variables**
+  - Make Vim default editor
 
 ## Repository Overview
 #### Below is an overview of the repository by directory.
