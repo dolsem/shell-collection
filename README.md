@@ -23,6 +23,7 @@ $ git clone https://github.com/dolsem/shell-collection && ./install.bash
     - **prompt_for_bool**
     - **prompt_for_file**
     - **prompt_for_option**
+    - **prompt_for_multiselect**
   - **string**
     - **strip_whitespace**
   - **term**
