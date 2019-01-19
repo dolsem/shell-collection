@@ -4,7 +4,12 @@
 ```sh
 $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.bash
 ```
-## Overview
+## What's included
+#### Below is the list of items that can be installed with the installation script.
+- [**Oh My Zsh**][ohmyzsh-url]
+- **Shell functions**
+
+## Repository Overview
 #### Below is an overview of the repository by directory.
 - **functions** - useful shell functions (commands). Zsh-compatible.
   - **gdiff** - diff with git-like visualization
@@ -34,3 +39,4 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.
 
 [license-image]: https://img.shields.io/badge/License-MIT-blue.svg
 [license-url]: https://opensource.org/licenses/MIT
+[ohmyzsh-url]: https://github.com/robbyrussell/oh-my-zsh
