@@ -28,7 +28,8 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.
     - **strip_whitespace**
 - **term**
   - *output colors*
-  - **validation**
+  - **reset_color**
+- **validation**
     - **is_valid_ip**
 
 [license-image]: https://img.shields.io/badge/License-MIT-blue.svg
