@@ -2,7 +2,7 @@
 [![License: MIT][license-image]][license-url]
 ## Installation
 ```sh
-$ git clone https://github.com/dolsem/shell-collection && ./install.bash
+$ git clone --recursive https://github.com/dolsem/shell-collection && ./install.bash
 ```
 ## Overview
 #### Below is an overview of the repository by directory.
@@ -26,8 +26,8 @@ $ git clone https://github.com/dolsem/shell-collection && ./install.bash
     - **prompt_for_multiselect**
   - **string**
     - **strip_whitespace**
-  - **term**
-    - **output colors**
+- **term**
+  - *output colors*
   - **validation**
     - **is_valid_ip**
 

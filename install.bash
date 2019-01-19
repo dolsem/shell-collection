@@ -13,8 +13,8 @@
 HOME_DIR=$(realpath ~)
 FUNCTIONS_DIR=${HOME_DIR}/.functions
 
-source ./util/os.bash
-source ./util/term.bash
+source ./utils/os.bash
+source ./utils/term.bash
 
 if ! command -v colordiff 1>/dev/null 2>&1; then
   echo "==> Installing colordiff for gdiff..." | blue
