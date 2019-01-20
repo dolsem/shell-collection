@@ -66,14 +66,10 @@ make_vim_default() {
 
 #------< Installation Targets >------#
 install_functions() {
-  # Install colordiff
-  if ! command -v colordiff 1>/dev/null 2>&1; then
+  # gdiff requires colordiff on MacOS
+  if is_macos && ! command -v colordiff 1>/dev/null 2>&1; then
     echo "==> Installing colordiff for gdiff..." | blue
-    if is_macos; then
-      brew install colordiff | dim
-    else
-      sudo apt install colordiff | dim
-    fi
+    brew install colordiff | dim
   fi
 
   if [ ! $? -eq 0 ]; then

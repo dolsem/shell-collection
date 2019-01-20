@@ -10,5 +10,9 @@
 ###########################################################################
 
 gdiff () {
-  colordiff -u --color=always $@ | less -r
+  if command -v colordiff; then
+    colordiff -u $@ | less -r
+  else
+    diff -u --color=always $@ | less -r
+  fi
 }
