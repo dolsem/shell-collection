@@ -23,6 +23,7 @@ FUNCTIONS_DIR=${HOME_DIR}/.functions
 
 FUNCTIONS_OPTION="Install shell functions"
 OHMYZSH_OPTION="Install Oh My Zsh"
+ALIASES_OPTION="Install aliases"
 ENVVARS_OPTION="Set additional environment variables"
 
 #------< Helpers >------#
@@ -98,6 +99,22 @@ install_oh_my_zsh() {
   sh -c "$(curl -fsSL $SCRIPT_URL | sed "s/env zsh -l/$RUN_CMD/g")" | dim
 }
 
+install_aliases() {
+  ALIASES_FILENAME_DEFAULT=".aliases"
+
+  prompt_with_default aliases_filename "Choose filename for aliases file to be created" $ALIASES_FILENAME_DEFAULT
+  ALIASES_PATH="$HOME_DIR/$aliases_filename"
+
+  # Copy aliases
+  cp -f "$SCRIPT_DIR"/aliases/aliases "$ALIASES_PATH"
+
+  # Add to rc file
+  SOURCE_CMD="source '$ALIASES_PATH'"
+  if ! append_to_rc "$SOURCE_CMD"; then
+    return 1
+  fi
+}
+
 set_env_vars() {
   ENVVARS_FILENAME_DEFAULT=".envvars"
 
@@ -132,14 +149,15 @@ fi
 if [[ -z $1 ]]; then
   echo "Please select what you would like to install. Use <Space> to select/unselect, <Enter> to submit."
   prompt_for_multiselect to_install \
-    "$OHMYZSH_OPTION;$FUNCTIONS_OPTION;$ENVVARS_OPTION" \
-    "true;true;true"
+    "$OHMYZSH_OPTION;$FUNCTIONS_OPTION;$ALIASES_OPTION;$ENVVARS_OPTION" \
+    "true;true;true;true"
 else
   IFS=';' read -r -a to_install <<< "$1"
 fi
 
 INSTALL_OHMYZSH=${to_install[0]}
 INSTALL_FUNCTIONS=${to_install[1]}
+INSTALL_ALIASES=${to_install[2]}
 INSTALL_ENVVARS=${to_install[3]}
 
 if [[ $INSTALL_OHMYZSH == true  ]]; then
@@ -152,6 +170,14 @@ fi
 if [[ $INSTALL_FUNCTIONS == true  ]]; then
   echo "==> Adding shell functions to the environment..." | blue
   install_functions
+  if [ $? -eq 0 ]; then
+    echo "Done." | green
+  fi
+fi
+
+if [[ $INSTALL_ALIASES == true  ]]; then
+  echo "==> Installing aliases..." | blue
+  install_aliases
   if [ $? -eq 0 ]; then
     echo "Done." | green
   fi
