@@ -10,18 +10,20 @@
 # Copyright (c) 2019 Denis Semenenko
 ###########################################################################
 
-SCRIPT_DIR=$(dirname $0)
+PROJECT_DIR=$(dirname $0)
 HOME_DIR=$(realpath ~)
 
 #------< Imports >------#
-source "$SCRIPT_DIR"/utils/os.bash
-source "$SCRIPT_DIR"/utils/term.bash
-source "$SCRIPT_DIR"/utils/prompt.bash
+source "$PROJECT_DIR"/utils/os.bash
+source "$PROJECT_DIR"/utils/term.bash
+source "$PROJECT_DIR"/utils/prompt.bash
 
 #------< Constants >------#
 FUNCTIONS_DIR=${HOME_DIR}/.functions
+SCRIPTS_DIR=${HOME_DIR}/.scripts
 
 FUNCTIONS_OPTION="Install shell functions"
+SCRIPTS_OPTION="Install scripts"
 OHMYZSH_OPTION="Install Oh My Zsh"
 ALIASES_OPTION="Install aliases"
 ENVVARS_OPTION="Set additional environment variables"
@@ -65,7 +67,36 @@ make_vim_default() {
   append_once 'export EDITOR="$VISUAL"' "$ENVVARS_PATH"
 }
 
+ensure_installed() {
+  if ! command -v $1; then
+    echo "$1 is not installed. Installing..."
+    if is_macos; then
+      brew install $1
+    else
+      sudo apt install $1
+    fi
+  fi
+}
+
 #------< Installation Targets >------#
+install_scripts() {
+  # Copy scripts
+  mkdir -p $SCRIPTS_DIR
+  cp -f "$PROJECT_DIR"/scripts/* $SCRIPTS_DIR
+
+  # Add to path
+  append_to_rc "export PATH=\$PATH:'$SCRIPTS_DIR'"
+
+  # Create aliases
+  for filepath in "$PROJECT_DIR"/scripts/*.bash; do
+    filename=$(basename -- "$filepath")
+    cmd_name=${filename%.*}
+    append_to_rc "alias $cmd_name=$filename"
+  done
+
+  return $?
+}
+
 install_functions() {
   # gdiff requires colordiff on MacOS
   if is_macos && ! command -v colordiff 1>/dev/null 2>&1; then
@@ -79,10 +110,10 @@ install_functions() {
 
   # Copy functions
   mkdir -p $FUNCTIONS_DIR
-  cp -f "$SCRIPT_DIR"/functions/* $FUNCTIONS_DIR
+  cp -f "$PROJECT_DIR"/functions/* $FUNCTIONS_DIR
 
   # Create index for sourcing
-  ls "$SCRIPT_DIR"/functions | xargs printf "source ${FUNCTIONS_DIR}/%s\n" > ${FUNCTIONS_DIR}/index
+  ls "$PROJECT_DIR"/functions | xargs printf "source ${FUNCTIONS_DIR}/%s\n" > ${FUNCTIONS_DIR}/index
 
   # Add to rc file
   SOURCE_CMD="source ${FUNCTIONS_DIR}/index"
@@ -106,7 +137,7 @@ install_aliases() {
   ALIASES_PATH="$HOME_DIR/$aliases_filename"
 
   # Copy aliases
-  cp -f "$SCRIPT_DIR"/aliases/aliases "$ALIASES_PATH"
+  cp -f "$PROJECT_DIR"/aliases/aliases "$ALIASES_PATH"
 
   # Add to rc file
   SOURCE_CMD="source '$ALIASES_PATH'"
@@ -149,22 +180,31 @@ fi
 if [[ -z $1 ]]; then
   echo "Please select what you would like to install. Use <Space> to select/unselect, <Enter> to submit."
   prompt_for_multiselect to_install \
-    "$OHMYZSH_OPTION;$FUNCTIONS_OPTION;$ALIASES_OPTION;$ENVVARS_OPTION" \
-    "true;true;true;true"
+    "$OHMYZSH_OPTION;$SCRIPTS_OPTION;$FUNCTIONS_OPTION;$ALIASES_OPTION;$ENVVARS_OPTION" \
+    "true;true;true;true;true"
 else
   IFS=';' read -r -a to_install <<< "$1"
 fi
 
 INSTALL_OHMYZSH=${to_install[0]}
-INSTALL_FUNCTIONS=${to_install[1]}
-INSTALL_ALIASES=${to_install[2]}
-INSTALL_ENVVARS=${to_install[3]}
+INSTALL_SCRIPTS=${to_install[1]}
+INSTALL_FUNCTIONS=${to_install[2]}
+INSTALL_ALIASES=${to_install[3]}
+INSTALL_ENVVARS=${to_install[4]}
 
 if [[ $INSTALL_OHMYZSH == true  ]]; then
   echo "==> Installing Oh-My-Zsh..." | blue
   to_install[0]=
   install_oh_my_zsh $(IFS=';' ; echo "${to_install[*]}")
   exit 0
+fi
+
+if [[ $INSTALL_SCRIPTS == true  ]]; then
+  echo "==> Adding scripts to the environment..." | blue
+  install_scripts
+  if [ $? -eq 0 ]; then
+    echo "Done." | green
+  fi
 fi
 
 if [[ $INSTALL_FUNCTIONS == true  ]]; then

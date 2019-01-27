@@ -7,7 +7,7 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.
 ## What's included
 #### Below is the list of items that can be installed with the installation script.
 - [**Oh My Zsh**][ohmyzsh-url]
-- **Shell functions**
+- **Shell scripts && shell functions**
 - **Setting extra environment variables**
   - Make Vim default editor
 
@@ -15,9 +15,10 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && ./install.
 #### Below is an overview of the repository by directory.
 - **functions** - useful shell functions (commands). Zsh-compatible.
   - **gdiff** - diff with git-like visualization
-  - **git** - git wrapper with useful subcommands
   - **lynxmd** - view Markdown from terminal (requires pandoc and lynx)
   - **theme** - fast switching of oh-my-zsh themes
+- **scripts** - useful shell scripts (commands). Zsh-compatible.
+  - **git** - git wrapper with useful subcommands
 - **util** - useful functions for usage in scripts (bash)
   - **filesystem**
     - **abspath**
