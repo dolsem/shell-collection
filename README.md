@@ -2,7 +2,7 @@
 [![License: MIT][license-image]][license-url]
 ## Installation
 ```sh
-$ git clone --recursive https://github.com/dolsem/shell-collection && ./install.bash
+$ git clone --recursive https://github.com/dolsem/shell-collection && cd shell-collection && bash install.bash
 ```
 ## What's included
 #### Below is the list of items that can be installed with the installation script.
