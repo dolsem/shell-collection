@@ -17,7 +17,11 @@ CACHE_DIR="$(dirname $0)/.bash-utils"
 
 clone_repo() {
   echo "${PREFIX} Getting all utilities..."
-  git clone $REPO_URL "${CACHE_DIR}"
+  if [[ -z $noprogress ]]; then
+    git clone $REPO_URL "${CACHE_DIR}"
+  else
+    git clone $REPO_URL "${CACHE_DIR}" 1>/dev/null
+  fi    
   if [[ ! $? -eq 0 ]]; then
     exit $?
   fi
@@ -27,7 +31,11 @@ download_one() {
   echo "${PREFIX} Getting $1 utilities..."
   mkdir -p "$CACHE_DIR"
   if cd "$CACHE_DIR"; then
-    wget -O "$1.bash" "${BASE_URL}/$1.bash" -q --show-progress --progress=bar:noscroll
+    if [[ -z $noprogress ]]; then
+      wget -O "$1.bash" "${BASE_URL}/$1.bash" -q --show-progress --progress=bar:noscroll
+    else
+      wget -O "$1.bash" "${BASE_URL}/$1.bash" -q
+    fi
     cd - 1>/dev/null
   fi
   if [[ ! $? -eq 0 ]]; then
