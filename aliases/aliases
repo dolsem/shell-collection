@@ -1,1 +1,8 @@
+# zshmarks
+alias j='jump'
+alias mark='bookmark'
+alias unmark='deletemark'
+alias lsmark='showmarks'
+
+# React Native workflow
 alias rnd='spawn "/opt/ReactNativeDebugger/React Native Debugger"'
