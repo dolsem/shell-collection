@@ -126,7 +126,7 @@ install_functions() {
 install_aliases() {
   aliases_filename=".aliases"
 
-  prompt_with_default aliases_filename "Choose filename for aliases file to be created"
+  prompt_with_default aliases_filename "Choose filename for aliases file to be created: "
   ALIASES_PATH="$HOME_DIR/$aliases_filename"
 
   # Copy aliases
@@ -144,7 +144,7 @@ set_env_vars() {
 
   envvars_filename=".envvars"
 
-  prompt_with_default envvars_filename "Choose filename for environment variables file to be created"
+  prompt_with_default envvars_filename "Choose filename for environment variables file to be created: "
   ENVVARS_PATH="$HOME_DIR/$envvars_filename"
 
   # Add to rc file
