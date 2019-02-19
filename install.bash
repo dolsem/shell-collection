@@ -25,6 +25,7 @@ SCRIPTS_DIR=${HOME_DIR}/.scripts
 FUNCTIONS_OPTION="Install shell functions"
 SCRIPTS_OPTION="Install scripts"
 OHMYZSH_OPTION="Install Oh My Zsh"
+OHMYZSH_PLUGINS_OPTION="Install Oh My Zsh plugins"
 ALIASES_OPTION="Install aliases"
 ENVVARS_OPTION="Set additional environment variables"
 
@@ -122,18 +123,10 @@ install_functions() {
   return $?
 }
 
-install_oh_my_zsh() {
-  SCRIPT_URL="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
-  ZSH_EXEC_ON_START=".\/install.bash \"$1\" --installed-oh-my-zsh"
-  RUN_CMD="echo 'if [[ -n \$ZSH_EXEC_ON_START ]]; then eval \$ZSH_EXEC_ON_START; fi' >> ~\/.zshrc \&\& ZSH_EXEC_ON_START='$ZSH_EXEC_ON_START' env zsh -l"
-
-  sh -c "$(curl -fsSL $SCRIPT_URL | sed "s/env zsh -l/$RUN_CMD/g")" | dim
-}
-
 install_aliases() {
-  ALIASES_FILENAME_DEFAULT=".aliases"
+  aliases_filename=".aliases"
 
-  prompt_with_default aliases_filename "Choose filename for aliases file to be created" $ALIASES_FILENAME_DEFAULT
+  prompt_with_default aliases_filename "Choose filename for aliases file to be created"
   ALIASES_PATH="$HOME_DIR/$aliases_filename"
 
   # Copy aliases
@@ -147,11 +140,11 @@ install_aliases() {
 }
 
 set_env_vars() {
-  ENVVARS_FILENAME_DEFAULT=".envvars"
-
   MAKE_VIM_DEFAULT_OPTION="Make Vim default editor"
 
-  prompt_with_default envvars_filename "Choose filename for environment variables file to be created" $ENVVARS_FILENAME_DEFAULT
+  envvars_filename=".envvars"
+
+  prompt_with_default envvars_filename "Choose filename for environment variables file to be created"
   ENVVARS_PATH="$HOME_DIR/$envvars_filename"
 
   # Add to rc file
@@ -172,31 +165,39 @@ set_env_vars() {
 }
 
 #------< Main >------#
+if [[ -z $1 ]]; then
+  echo "Please select what you would like to install. Use <Space> to select/unselect, <Enter> to submit."
+  prompt_for_multiselect to_install \
+    "$OHMYZSH_OPTION;$OHMYZSH_PLUGINS_OPTION;$SCRIPTS_OPTION;$FUNCTIONS_OPTION;$ALIASES_OPTION;$ENVVARS_OPTION" \
+    "true;true;true;true;true;true"
+else
+  IFS=';' read -r -a to_install <<< "$1"
+fi
+
 if [[ $2 == "--installed-oh-my-zsh" ]]; then
   reset_color
   echo "Done." | green
 fi
 
-if [[ -z $1 ]]; then
-  echo "Please select what you would like to install. Use <Space> to select/unselect, <Enter> to submit."
-  prompt_for_multiselect to_install \
-    "$OHMYZSH_OPTION;$SCRIPTS_OPTION;$FUNCTIONS_OPTION;$ALIASES_OPTION;$ENVVARS_OPTION" \
-    "true;true;true;true;true"
-else
-  IFS=';' read -r -a to_install <<< "$1"
-fi
-
 INSTALL_OHMYZSH=${to_install[0]}
-INSTALL_SCRIPTS=${to_install[1]}
-INSTALL_FUNCTIONS=${to_install[2]}
-INSTALL_ALIASES=${to_install[3]}
-INSTALL_ENVVARS=${to_install[4]}
+INSTALL_OHMYZSH_PLUGINS=${to_install[1]}
+INSTALL_SCRIPTS=${to_install[2]}
+INSTALL_FUNCTIONS=${to_install[3]}
+INSTALL_ALIASES=${to_install[4]}
+INSTALL_ENVVARS=${to_install[5]}
 
 if [[ $INSTALL_OHMYZSH == true  ]]; then
-  echo "==> Installing Oh-My-Zsh..." | blue
+  echo "==> Installing Oh My Zsh..." | blue
+  ensure_installed zsh
   to_install[0]=
-  install_oh_my_zsh $(IFS=';' ; echo "${to_install[*]}")
+  ${PROJECT_DIR}/oh-my-zsh/install.zsh --return-control $(IFS=';' ; echo "${to_install[*]}")
   exit 0
+fi
+
+if [[ $INSTALL_OHMYZSH_PLUGINS == true  ]]; then
+  echo "==> Installing Oh My Zsh plugins..." | blue
+  ${PROJECT_DIR}/oh-my-zsh/install_plugins.zsh --return-control
+  ohmyzsh_plugins_status=$?
 fi
 
 if [[ $INSTALL_SCRIPTS == true  ]]; then
@@ -229,4 +230,8 @@ if [[ $INSTALL_ENVVARS == true  ]]; then
   if [ $? -eq 0 ]; then
     echo "Done." | green
   fi
+fi
+
+if [[ $INSTALL_OHMYZSH_PLUGINS == true && ohmyzsh_plugins_status -eq 0 ]]; then
+  exec env ZSH_EXEC_ON_START= zsh -l
 fi
