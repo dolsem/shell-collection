@@ -47,6 +47,12 @@ case $1 in
   dc)
     exec git diff --cached "$2"
   ;;
+  rbi)
+    exec git rebase -i ${@:2}
+  ;;
+  rbc)
+    exec git rebase --continue ${@:2}
+  ;;
   readd)
     exec git add $(git diff --name-only --cached)
   ;;
