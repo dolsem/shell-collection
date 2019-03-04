@@ -14,7 +14,7 @@
 PREFIX='[Dolsem Bash Utils]'
 REPO_URL='https://github.com/dolsem/bash-utils'
 BASE_URL="${REPO_URL}/raw/master"
-CACHE_DIR="$(dirname $0)/.bash-utils"
+CACHE_DIR="$(realpath $(dirname ${BASH_SOURCE[1]}))/.bash-utils"
 
 #------< Dependency graph (tree) >------#
 deps_assert=()
@@ -49,8 +49,8 @@ get_one() {
       else
         wget -O "$1.bash" "${BASE_URL}/$1.bash" -q
       fi
-      cd - 1>/dev/null
     fi
+    cd - 1>/dev/null
   else
     echo
     echo "${PREFIX} $CACHE_DIR: access denied"
