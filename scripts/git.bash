@@ -40,6 +40,14 @@ rmdir_recursive() {
   done
 }
 
+relpath() {
+  if command -v realpath 1>/dev/null; then
+    realpath --relative-to="$1" "$2"
+  else
+    perl -MFile::Spec -e "print File::Spec->abs2rel(q($2),q($1))"
+  fi
+}
+
 case $1 in
   s)
     exec git status -s
@@ -60,7 +68,7 @@ case $1 in
     exec git checkout stash@{0} -- "$2"
   ;;
   retrospect)
-    git_dir=$(realpath $(git rev-parse --git-dir))
+    git_dir=$(cd $(git rev-parse --git-dir); pwd -P)
     retrospect_dir="${git_dir}/retrospect"
 
     if [[ -z $2 ]]; then
@@ -83,7 +91,7 @@ case $1 in
       exit 1
     fi
 
-    relative_dir=$(realpath --relative-to="$git_dir/.." "$dir")
+    relative_dir=$(relpath "$git_dir/.." "$dir")
     new_dir=$retrospect_dir
     if [[ "$relative_dir" == . ]]; then
       relative_dir=
@@ -138,7 +146,7 @@ case $1 in
     fi
 
     cp "$2" "$new_path"
-    print_conflict_diff "$2" "$new_path" > "$2"
+    print_conflict_diff "$([[ -n $relative_dir ]] && echo "$relative_dir/")$filename" "$new_path" > "$2"
   ;;
 
   *)
