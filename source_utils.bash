@@ -14,7 +14,7 @@
 PREFIX='[Dolsem Bash Utils]'
 REPO_URL='https://github.com/dolsem/bash-utils'
 BASE_URL="${REPO_URL}/raw/master"
-CACHE_DIR="$(realpath $(dirname ${BASH_SOURCE[1]}))/.bash-utils"
+CACHE_DIR="$(cd $(dirname ${BASH_SOURCE[1]}); pwd -P)/.bash-utils"
 
 #------< Dependency graph (tree) >------#
 deps_assert=()
@@ -27,6 +27,22 @@ deps_term=()
 deps_validation=()
 
 #------< Helpers >------#
+download() {
+  if command -v wget 1>/dev/null; then
+    if [[ -z $noprogress ]]; then
+      wget -O "$1" "${BASE_URL}/$1" -q --show-progress --progress=bar:noscroll
+    else
+      wget -O "$1" "${BASE_URL}/$1" -q
+    fi
+  else
+    if [[ -z $noprogress ]]; then
+      curl -#fL "${BASE_URL}/$1" -o "$1"
+    else
+      curl -fsSL "${BASE_URL}/$1" -o "$1"
+    fi
+  fi
+}
+
 clone_repo() {
   echo "${PREFIX} Getting all utilities..."
   if [[ -z $noprogress ]]; then
@@ -44,11 +60,7 @@ get_one() {
   if cd "$CACHE_DIR"; then
     if [[ ! -f $1.bash ]]; then
       echo "${PREFIX} Getting $1 utilities..."
-      if [[ -z $noprogress ]]; then
-        wget -O "$1.bash" "${BASE_URL}/$1.bash" -q --show-progress --progress=bar:noscroll
-      else
-        wget -O "$1.bash" "${BASE_URL}/$1.bash" -q
-      fi
+      download "$1.bash"
     fi
     cd - 1>/dev/null
   else
@@ -59,7 +71,11 @@ get_one() {
   if [[ ! $? -eq 0 ]]; then
     exit $?
   fi
-  echo -e '\033[1A\033[52C Done.'
+  if [[ -z $noprogress ]]; then
+    echo -e '\033[2A\033[52C Done.\033[1B'
+  else
+    echo -e '\033[1A\033[52C Done.'
+  fi
 }
 
 get_dependencies() {

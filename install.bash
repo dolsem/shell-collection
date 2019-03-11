@@ -11,7 +11,7 @@
 ###########################################################################
 
 PROJECT_DIR=$(dirname $0)
-HOME_DIR=$(realpath ~)
+HOME_DIR=$(cd ~; pwd -P)
 
 #------< Imports >------#
 source "$PROJECT_DIR"/utils/os.bash

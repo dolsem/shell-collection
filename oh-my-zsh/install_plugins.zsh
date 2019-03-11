@@ -18,7 +18,7 @@ source "$PROJECT_DIR"/utils/term.bash
 source "$PROJECT_DIR"/utils/prompt.bash
 
 #------< Constants >------#
-RC_FILE=$(realpath ~/.zshrc)
+RC_FILE=$(cd ~; pwd -P)/.zshrc
 PLUGINS_DIR=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
 
 AUTOSUGGEST='zsh-autosuggestions'
