@@ -19,6 +19,7 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && cd shell-c
   - **theme** - fast switching of oh-my-zsh themes
 - **scripts** - useful shell scripts (commands). Zsh-compatible.
   - **git** - git wrapper with useful subcommands
+  - **bind-dns** - runs bind DNS server in docker container
 - **util** - useful functions for usage in scripts (bash)
   - **filesystem**
     - **abspath**
