@@ -4,5 +4,12 @@ alias mark='bookmark'
 alias unmark='deletemark'
 alias lsmark='showmarks'
 
+# General workflow
+alias cclip='xclip -selection clipboard'
+
+# Development workflow
+alias sublime='/opt/sublime_text/sublime_text'
+
 # React Native workflow
 alias rnd='spawn "/opt/ReactNativeDebugger/React Native Debugger"'
+
