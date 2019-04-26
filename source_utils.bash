@@ -14,7 +14,7 @@
 PREFIX='[Dolsem Bash Utils]'
 REPO_URL='https://github.com/dolsem/bash-utils'
 BASE_URL="${REPO_URL}/raw/master"
-CACHE_DIR="$(cd $(dirname ${BASH_SOURCE[1]}); pwd -P)/.bash-utils"
+CACHE_DIR="$(cd $(dirname ${BASH_SOURCE[1]:-${funcfiletrace[1]%:*}}); pwd -P)/.bash-utils"
 
 #------< Dependency graph (tree) >------#
 deps_assert=()
