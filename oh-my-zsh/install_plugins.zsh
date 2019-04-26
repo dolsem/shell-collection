@@ -14,6 +14,7 @@ OHMYZSH_DIR=${0:a:h}
 PROJECT_DIR="${OHMYZSH_DIR}/.."
 
 #------< Imports >------#
+source "$PROJECT_DIR"/utils/os.bash
 source "$PROJECT_DIR"/utils/term.bash
 source "$PROJECT_DIR"/utils/prompt.bash
 
@@ -25,16 +26,21 @@ AUTOSUGGEST='zsh-autosuggestions'
 SYNTAX='zsh-syntax-highlighting'
 ZSHMARKS='zshmarks'
 K='k'
+AUTOENV='autoenv'
+THEFUCK='thefuck'
 
 AUTOSUGGEST_URL='https://github.com/zsh-users/zsh-autosuggestions'
 SYNTAX_URL='https://github.com/zsh-users/zsh-syntax-highlighting'
 ZSHMARKS_URL='https://github.com/jocelynmallon/zshmarks'
 K_URL='https://github.com/supercrabtree/k'
+AUTOENV_URL='https://github.com/zpm-zsh/autoenv'
 
 AUTOSUGGEST_OPTION="Install $AUTOSUGGEST ($AUTOSUGGEST_URL)"
 SYNTAX_OPTION="Install $SYNTAX ($SYNTAX_URL)"
 ZSHMARKS_OPTION="Install $ZSHMARKS ($ZSHMARKS_URL)"
 K_OPTION="Install $K ($K_URL)"
+AUTOENV_OPTION="Install $AUTOENV ($AUTOENV_URL)"
+THEFUCK_OPTION="Enable $THEFUCK"
 
 #------< Helpers >------#
 enable_plugin() {
@@ -55,13 +61,15 @@ fi
 
 echo "Please select what plugins you would like to install. Use <Space> to select/unselect, <Enter> to submit."
 prompt_for_multiselect to_install \
-  "$AUTOSUGGEST_OPTION;$SYNTAX_OPTION;$ZSHMARKS_OPTION;$K_OPTION" \
-  "true;true;true;true"
+  "$AUTOSUGGEST_OPTION;$SYNTAX_OPTION;$ZSHMARKS_OPTION;$K_OPTION;$AUTOENV_OPTION;$THEFUCK_OPTION" \
+  "true;true;true;true;true;true"
 
 INSTALL_AUTOSUGGEST=${to_install[1]}
 INSTALL_SYNTAX=${to_install[2]}
 INSTALL_ZSHMARKS=${to_install[3]}
 INSTALL_K=${to_install[4]}
+INSTALL_AUTOENV=${to_install[5]}
+ENABLE_THEFUCK=${to_install[6]}
 
 exit_code=1
 
@@ -100,6 +108,35 @@ if [[ $INSTALL_K == true ]]; then
   echo "==> Installing $K..." | blue
   git clone $K_URL "${PLUGINS_DIR}/$K" | dim \
   && enable_plugin $K
+  if [ $? -eq 0 ]; then
+    echo "Done." | green
+  fi
+fi
+
+if [[ $INSTALL_AUTOENV == true ]]; then
+  exit_code=0
+  echo "==> Installing $AUTOENV..." | blue
+  git clone $AUTOENV_URL "${PLUGINS_DIR}/$AUTOENV" | dim \
+  && enable_plugin $AUTOENV
+  if [ $? -eq 0 ]; then
+    echo "Done." | green
+  fi
+fi
+
+if [[ $ENABLE_THEFUCK == true ]]; then
+  exit_code=0
+  echo "==> Enabling $THEFUCK..." | blue
+
+  if is_macos; then
+    brew install thefuck
+  else
+    if ! command -v pip3 1>/dev/null 2>&1; then
+      sudo apt update && sudo apt install python3-dev python3-pip python3-setuptools
+    fi
+    sudo -H pip3 install thefuck
+  fi
+
+  enable_plugin $THEFUCK
   if [ $? -eq 0 ]; then
     echo "Done." | green
   fi
