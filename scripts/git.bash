@@ -67,6 +67,9 @@ case $1 in
   unstash)
     exec git checkout stash@{0} -- "$2"
   ;;
+  +x)
+    exec git update-index --chmod=+x ${@:2}
+  ;;
   retrospect)
     git_dir=$(cd $(git rev-parse --git-dir); pwd -P)
     retrospect_dir="${git_dir}/retrospect"
