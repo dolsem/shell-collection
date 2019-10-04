@@ -14,6 +14,7 @@ $ git clone --recursive https://github.com/dolsem/shell-collection && cd shell-c
 ## Repository Overview
 #### Below is an overview of the repository by directory.
 - **functions** - useful shell functions (commands). Zsh-compatible.
+  - **pipe** - opens named pipe and reads in a loop, closes on SIGINT
   - **gdiff** - diff with git-like visualization
   - **lynxmd** - view Markdown from terminal (requires pandoc and lynx)
   - **theme** - fast switching of oh-my-zsh themes

@@ -1,0 +1,19 @@
+###########################################################################
+# Script Name : pipe
+# Description : Open a pipe and read until SIGINT
+# Author      : Denis Semenenko
+# Email       : dols3m@gmail.com
+# Date written: October 2019
+#
+# Distributed under MIT license
+# Copyright (c) 2019-Present Denis Semenenko
+###########################################################################
+
+pipe() {
+    local pipe=$1
+    local exit
+    trap 'exit=true' INT
+    [ -p "$pipe" ] || mkfifo -m 0600 "$pipe" || return 1
+    (while [[ $exit != true ]] ; do cat $pipe ; done)
+    rm $pipe
+}
