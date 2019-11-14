@@ -55,7 +55,7 @@ case $1 in
     exec "$git" status -s ${@:2}
   ;;
   dc)
-    exec "$git" diff --cached "$2"
+    exec "$git" diff --cached "${2:-.}"
   ;;
   rbi)
     exec "$git" rebase -i ${@:2}
