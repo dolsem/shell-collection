@@ -68,6 +68,7 @@ case $1 in
     git_dir=$(cd $("$git" rev-parse --git-dir); pwd -P)
     retrospect_dir="${git_dir}/retrospect"
 
+    # list pending files: $ git retrospect
     if [[ -z $2 ]]; then
       if [[ ! -d "$retrospect_dir" ]]; then
         echo "No files are being retrospected"
@@ -78,6 +79,7 @@ case $1 in
       exit
     fi
 
+    # other commands: $ git retrospect <file> [--abort|--done]
     dir=$(dirname "$2" 2>/dev/null)
     if [[ ! $? -eq 0 ]]; then
       echo "'$2' is not a valid path"
@@ -105,6 +107,7 @@ case $1 in
     filename=$(basename -- "$2")
     new_path="${new_dir}${filename}"
 
+    # cancel and revert changes: $ git retrospect <file> --abort
     if [[ $3 == --abort ]]; then
       if [[ ! -f "$new_path" ]]; then
         echo "'$2' is not found in retrospect cache"
@@ -114,6 +117,7 @@ case $1 in
       exit
     fi
 
+    # other commands: $ git retropect <file> [--done]
     if [[ ! -f "$2" ]]; then
       echo "'$2' did not match any files"
       exit 1
@@ -124,11 +128,13 @@ case $1 in
       exit 1
     fi
 
+    # add selected changes to commit and restore file: $ git retrospect <file> --done
     if [[ $3 == --done ]]; then
       "$git" add "$2" && mv "$new_path" "$2" && rmdir_recursive "$new_dir" $depth
       exit $?
     fi
 
+    # start retrospection: $ git retrospect <file>
     if command "$git" diff --quiet "$2"; then
       echo "'$2' has no unstaged changes"
       exit 1
