@@ -42,14 +42,6 @@ rmdir_recursive() {
   done
 }
 
-relpath() {
-  if command -v realpath 1>/dev/null; then
-    realpath --relative-to="$1" "$2"
-  else
-    perl -MFile::Spec -e "print File::Spec->abs2rel(q($2),q($1))"
-  fi
-}
-
 case $1 in
   s)
     exec "$git" status -s ${@:2}
@@ -96,14 +88,13 @@ case $1 in
       exit 1
     fi
 
-    relative_dir=$(relpath "$git_dir/.." "$dir")
-    new_dir=$retrospect_dir
-    if [[ "$relative_dir" == . ]]; then
-      relative_dir=
+    relative_dir=$(cd $dir && git rev-parse --show-prefix)
+    if [[ -z $relative_dir ]]; then
+      new_dir=$retrospect_dir
       depth=1
     else
-      new_dir="${new_dir}/${relative_dir}"
-      depth=$(($(res="${relative_dir//[^\/]}"; echo ${#res})+2))
+      new_dir="${retrospect_dir}/${relative_dir}"
+      depth=$(($(res="${relative_dir//[^\/]}"; echo ${#res})+1))
     fi
 
     mkdir -p "$new_dir"
@@ -112,7 +103,7 @@ case $1 in
     fi
 
     filename=$(basename -- "$2")
-    new_path="${new_dir}/${filename}"
+    new_path="${new_dir}${filename}"
 
     if [[ $3 == --abort ]]; then
       if [[ ! -f "$new_path" ]]; then
@@ -151,7 +142,7 @@ case $1 in
     fi
 
     cp "$2" "$new_path"
-    print_conflict_diff "$([[ -n $relative_dir ]] && echo "$relative_dir/")$filename" "$new_path" > "$2"
+    print_conflict_diff "${relative_dir}${filename}" "$new_path" > "$2"
   ;;
 
   *)
