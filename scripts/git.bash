@@ -14,8 +14,10 @@ source_util() { source "$(dirname $0)/.bash-utils/$1.bash" 2>/dev/null || util=$
 source_util os
 source_util prompt
 
+git=$(which -a git | tail -1)
+
 print_conflict_diff() {
-  git show "HEAD:$1" |
+  "$git" show "HEAD:$1" |
     diff - "$2" \
       --unchanged-group-format='%=' \
       --old-group-format="<<<<<<< Old%c'\\12'%<=======%c'\\12'>>>>>>> New%c'\\12'" \
@@ -50,28 +52,28 @@ relpath() {
 
 case $1 in
   s)
-    exec git status -s
+    exec "$git" status -s
   ;;
   dc)
-    exec git diff --cached "$2"
+    exec "$git" diff --cached "$2"
   ;;
   rbi)
-    exec git rebase -i ${@:2}
+    exec "$git" rebase -i ${@:2}
   ;;
   rbc)
-    exec git rebase --continue ${@:2}
+    exec "$git" rebase --continue ${@:2}
   ;;
   readd)
-    exec git add $(git diff --name-only --cached)
+    exec "$git" add $("$git" diff --name-only --cached)
   ;;
   unstash)
-    exec git checkout stash@{0} -- "$2"
+    exec "$git" checkout stash@{0} -- "$2"
   ;;
   +x)
-    exec git update-index --chmod=+x ${@:2}
+    exec "$git" update-index --chmod=+x ${@:2}
   ;;
   retrospect)
-    git_dir=$(cd $(git rev-parse --git-dir); pwd -P)
+    git_dir=$(cd $("$git" rev-parse --git-dir); pwd -P)
     retrospect_dir="${git_dir}/retrospect"
 
     if [[ -z $2 ]]; then
@@ -132,11 +134,11 @@ case $1 in
     fi
 
     if [[ $3 == --done ]]; then
-      git add "$2" && mv "$new_path" "$2" && rmdir_recursive "$new_dir" $depth
+      "$git" add "$2" && mv "$new_path" "$2" && rmdir_recursive "$new_dir" $depth
       exit $?
     fi
 
-    if command git diff --quiet "$2"; then
+    if command "$git" diff --quiet "$2"; then
       echo "'$2' has no unstaged changes"
       exit 1
     fi
@@ -153,6 +155,6 @@ case $1 in
   ;;
 
   *)
-    eval "exec $(printf "'%s' " git "$@")"
+    eval "exec $(printf "'%s' " "$git" "$@")"
   ;;
 esac
