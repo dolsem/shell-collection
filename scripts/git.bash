@@ -52,7 +52,7 @@ relpath() {
 
 case $1 in
   s)
-    exec "$git" status -s
+    exec "$git" status -s ${@:2}
   ;;
   dc)
     exec "$git" diff --cached "$2"
