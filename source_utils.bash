@@ -91,7 +91,7 @@ get_dependencies() {
 #------< Main >------#
 if [[ -z $util ]]; then
   clone_repo
-  source "${CACHE_DIR}/*.bash"
+  for f in "$CACHE_DIR"; do source "$f"; done
 else
   get_one $util
   get_dependencies $util
