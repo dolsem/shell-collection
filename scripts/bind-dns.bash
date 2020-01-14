@@ -10,7 +10,7 @@
 # Copyright (c) 2019 Denis Semenenko
 ###########################################################################
 
-source_util() { source "$(dirname $0)/.bash-utils/$1.bash" 2>/dev/null || util=$1 source <(curl -fsSL 'https://github.com/dolsem/shell-collection/raw/master/source_utils.bash') 1>&2; }
+source_util() { source "$(dirname $0)/.bash-utils/$1.bash" 2>/dev/null || util=$1 source /dev/stdin <<<"$(curl -fsSL 'https://github.com/dolsem/shell-collection/raw/master/source_utils.bash')" 1>&2; }
 source_util prompt
 
 IMAGE_NAME=sameersbn/bind
