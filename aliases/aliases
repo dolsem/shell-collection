@@ -9,6 +9,7 @@ alias cclip='xclip -selection clipboard'
 
 # Development workflow
 alias sublime='/opt/sublime_text/sublime_text'
+alias rnode='env NODE_NO_READLINE=1 rlwrap -S "> " node'
 
 # React Native workflow
 alias rnd='spawn "/opt/ReactNativeDebugger/React Native Debugger"'
