@@ -81,19 +81,27 @@ ensure_installed() {
 
 #------< Installation Targets >------#
 install_scripts() {
+  WRAPPER_SCRIPTS=(git)
+
   # Copy scripts
   mkdir -p $SCRIPTS_DIR
-  cp -f "$PROJECT_DIR"/scripts/* $SCRIPTS_DIR
-
-  # Add to path
-  append_to_rc "export PATH=\$PATH:'$SCRIPTS_DIR'"
-
-  # Create aliases
   for filepath in "$PROJECT_DIR"/scripts/*.bash; do
     filename=$(basename -- "$filepath")
     cmd_name=${filename%.*}
-    append_to_rc "alias $cmd_name=$filename"
+    if [[ " ${WRAPPER_SCRIPTS[*]} " == *" ${cmd_name} "* ]]; then
+      cp -f "$filepath" "${SCRIPTS_DIR}/${cmd_name}"
+    else
+      cp -f "$filepath" "${SCRIPTS_DIR}"
+
+      # Create alias
+      append_to_rc "alias $cmd_name=$filename"
+    fi
+
   done
+
+  # Add to path
+  append_to_rc "export PATH='$SCRIPTS_DIR':\$PATH"
+  mkdir -p $SCRIPTS_DIR
 
   return $?
 }
