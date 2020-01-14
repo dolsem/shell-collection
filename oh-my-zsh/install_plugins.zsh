@@ -44,7 +44,7 @@ THEFUCK_OPTION="Enable $THEFUCK"
 
 #------< Helpers >------#
 enable_plugin() {
-  sed -i -- "/^plugins=(.*/{/[( ]$1/h;x;/^$/{x;s/)/ $1)/}}" $RC_FILE
+  sed -i -- -e '/^plugins=(.*/{' -e '/[( ]$1/h;x;/^$/{' -e "x;s/)/ $1)/" -e '}' -e '}' $RC_FILE
 }
 
 #------< Installation Targets >------#
