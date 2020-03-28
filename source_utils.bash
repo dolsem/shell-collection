@@ -17,6 +17,7 @@ BASE_URL="${REPO_URL}/raw/master"
 CACHE_DIR="$(cd $(dirname ${BASH_SOURCE[1]:-${funcfiletrace[1]%:*}}); pwd -P)/.bash-utils"
 
 #------< Dependency graph (tree) >------#
+deps_array=(assert)
 deps_assert=()
 deps_filesystem=()
 deps_network=(os)
