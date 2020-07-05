@@ -229,8 +229,8 @@ cmdhelp_rsync() {
 }
 cmd_rsync() {
   if [[ -n $2 ]]; then
-    cmd_rsync_push() { rsync -aP --delete --exclude='/.git' --filter="dir-merge,- .gitignore" "$(pwd)"/ "$1"; }
-    cmd_rsync_pull() { rsync -aP --delete --exclude='/.git' --filter="dir-merge,- .gitignore" "$1" "$(pwd)";  }
+    cmd_rsync_push() { rsync -aP --no-perms --no-user --no-group --delete --exclude='/.git' --filter="dir-merge,- .gitignore" "$(pwd)"/ "$1"; }
+    cmd_rsync_pull() { rsync -aP --no-perms --no-user --no-group --delete --exclude='/.git' --filter="dir-merge,- .gitignore" "$1" "$(pwd)";  }
     case $1 in
       push) cmd_rsync_push "$2"; exit $?;;
       pull) cmd_rsync_pull "$2"; exit $?;;
