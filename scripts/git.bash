@@ -133,6 +133,10 @@ cmd_readd() {
   exec "$git" add $("$git" diff --name-only --cached)
 }
 
+cmd_unpushed() {
+  exec "$git" log --branches --not --remotes --no-walk --decorate --oneline
+}
+
 cmd_unstash() {
   exec "$git" checkout stash@{0} -- "$1"
 }
@@ -269,6 +273,7 @@ case $1 in
   db)  exec git diff-blame ${@:2};;
 
   readd)      cmd_readd ${@:2};;
+  unpushed)   cmd_unpushed ${@:2};;
   unstash)    cmd_unstash ${@:2};;
   retrospect) cmd_retrospect ${@:2};;
   rsync)      cmd_rsync ${@:2};;
