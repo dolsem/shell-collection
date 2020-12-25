@@ -96,12 +96,13 @@ install_scripts() {
       # Create alias
       append_to_rc "alias $cmd_name=$filename"
     fi
-
   done
+
+  # Clean utils cache
+  rm -rf "${SCRIPTS_DIR}/.bash-utils"
 
   # Add to path
   append_to_rc "export PATH='$SCRIPTS_DIR':\$PATH"
-  mkdir -p $SCRIPTS_DIR
 
   return $?
 }
