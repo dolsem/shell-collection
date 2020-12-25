@@ -22,7 +22,8 @@ deps_assert=()
 deps_filesystem=()
 deps_network=(os)
 deps_os=()
-deps_prompt=(filesystem assert)
+deps_process=(assert)
+deps_prompt=(filesystem assert process)
 deps_string=(os)
 deps_term=()
 deps_validation=()
@@ -50,7 +51,7 @@ clone_repo() {
     git clone $REPO_URL "${CACHE_DIR}"
   else
     git clone $REPO_URL "${CACHE_DIR}" 1>/dev/null
-  fi    
+  fi
   if [[ ! $? -eq 0 ]]; then
     exit $?
   fi
