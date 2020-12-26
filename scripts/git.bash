@@ -141,6 +141,14 @@ cmd_unstash() {
   exec "$git" checkout stash@{0} -- "$1"
 }
 
+cmdhelp_retrospect() {
+  echo 'Usage:'
+  cat <<- EOF
+	  git retrospect <file> [--edit|--abort|--done]
+	  git retrospect --npm|--yarn   # Retrospect package.json and lockfiles
+	  git restrospect --set-editor  # Set custom editor command for git retrospect --edit
+	EOF
+}
 cmd_retrospect() {
   git_dir=$(cd $("$git" rev-parse --git-dir); pwd -P)
   retrospect_dir="${git_dir}/retrospect"
@@ -156,14 +164,26 @@ cmd_retrospect() {
     exit
   fi
 
-  # other commands: $ git retrospect <file> [--abort|--done]
+  # Retrospect package.json
+	if [[ "$1" == --npm ]] || [[ "$1" == --yarn ]]; then
+		cmd_retrospect_npm $1
+		exit
+	fi
+
+	# Set editor
+		if [[ "$1" == --set-editor ]]; then
+		cmd_retrospect_set_editor
+		exit
+	fi
+
+  # other commands: $ git retrospect <file> [--edit|--abort|--done]
   dir=$(dirname "$1" 2>/dev/null)
   if [[ ! $? -eq 0 ]]; then
-    echo "'$2' is not a valid path"
+    echo "'$2' is not a valid path" > 2
     exit 1
   fi
   if [[ -d "$1" ]]; then
-    echo "git retrospect does not work with directories"
+    echo "git retrospect does not work with directories" > 2
     exit 1
   fi
 
@@ -182,27 +202,27 @@ cmd_retrospect() {
   fi
 
   filename=$(basename -- "$1")
-  new_path="${new_dir}${filename}"
+  new_path="${new_dir}/${filename}"
 
   # cancel and revert changes: $ git retrospect <file> --abort
   if [[ $2 == --abort ]]; then
     if [[ ! -f "$new_path" ]]; then
-      echo "'$1' is not found in retrospect cache"
+      echo "'$1' is not found in retrospect cache" > 2
       exit 1
     fi
     mv "$new_path" "$1" && rmdir_recursive "$new_dir" $depth
     exit
   fi
 
-  # other commands: $ git retropect <file> [--done]
+  # other commands: $ git retropect <file> [--edit|--done]
   if [[ ! -f "$1" ]]; then
-    echo "'$1' did not match any files"
+    echo "'$1' did not match any files" > 2
     exit 1
   fi
 
   if grep -q "^<<<<<<<" "$1"; then
-    echo "'$1' has unresolved conflicts that have to be resolved first"
-    exit 1
+    echo "'$1' has unresolved conflicts that have to be resolved first" > 2
+    exit 64
   fi
 
   # add selected changes to commit and restore file: $ git retrospect <file> --done
@@ -211,9 +231,14 @@ cmd_retrospect() {
     exit $?
   fi
 
+  if [[ -n $2 ]] && [[ $2 != --edit ]]; then # second argument does not match any valid option
+    cmdhelp_retrospect
+    exit 1
+  fi
+
   # start retrospection: $ git retrospect <file>
   if command "$git" diff --quiet "$1"; then
-    echo "'$1' has no unstaged changes"
+    echo "'$1' has no unstaged changes" > 2
     exit 1
   fi
 
@@ -226,6 +251,74 @@ cmd_retrospect() {
 
   cp "$1" "$new_path"
   print_conflict_diff "${relative_dir}${filename}" "$new_path" > "$1"
+
+	if [[ $2 == --edit ]]; then
+		eval "RETROSPECT_EDITOR=$("$git" config --get retrospect.editor)"
+		if [[ -z $RETROSPECT_EDITOR ]]; then
+			echo 'Using the default editor. Run `git retrospect --set-editor` to change it or to suppress this message.' > 2
+			RETROSPECT_EDITOR=${GIT_EDITOR:-$EDITOR}
+		fi
+		exec $RETROSPECT_EDITOR "$1"
+	fi
+}
+cmd_retrospect_npm() {
+	local packager_cmd
+	local packager_lockfile
+	case $1 in
+		--npm)
+			packager_cmd='npm install --package-lock-only';
+			packager_lockfile='package-lock.json';;
+		--yarn)
+			packager_cmd='yarn install';
+			packager_lockfile='yarn.lock';;
+		*)
+			exit 1;;
+	esac
+
+	local git_root=$("$git" rev-parse --show-toplevel)
+	(cd $git_root && cmd_retrospect package.json --edit)
+	local exitcode=$?
+	if [ $exitcode -ne 0 ]; then exit $exitcode; fi
+	if ! grep -q "^<<<<<<<" "${git_root}/package.json"; then exit 0; fi
+
+	while :; do
+		prompt_for_enter 'Retrospect your package.json and press Enter'
+		echo
+		(cd $git_root && cmd_retrospect package.json --done)
+		exitcode=$?
+		if [ $exitcode -ne 64 ]; then break; fi
+	done
+	if [ $exitcode -ne 0 ]; then exit $exitcode; fi
+
+	local cache_dir=$("$git" rev-parse --git-dir)/retrospect-npm
+	mkdir -p $cache_dir
+	cp -f "${git_root}/package.json" "${cache_dir}/package.json"
+	cp -f "${git_root}/${packager_lockfile}" "${cache_dir}/${packager_lockfile}"
+
+	local restore_shopt=$(shopt -po errexit errtrace)
+	retrospect_npm_cleanup() {
+		eval $restore_shopt
+		mv "${cache_dir}/package.json" "${git_root}/package.json"
+		mv "${cache_dir}/${packager_lockfile}" "${git_root}/${packager_lockfile}"
+		if [[ $1 == --yarn ]]; then yarn install; fi
+	}
+
+	set -Ee
+	trap "exitcode=\$?; retrospect_npm_cleanup; git reset ${git_root}/package.lock ${git_root}/${packager_lockfile} >/dev/null; exit \$exitcode" ERR
+	"$git" show :package.json > "${git_root}/package.json"
+	eval $packager_cmd
+	"$git" add "${git_root}/$packager_lockfile"
+	retrospect_npm_cleanup
+	trap - ERR
+}
+cmd_retrospect_set_editor() {
+	local editor_str=$("$git" config --get retrospect.editor || echo '${GIT_EDITOR:-$EDITOR}')
+	while :; do
+		prompt_with_default editor_str 'Enter command to be used as retrospect editor: '
+		if [[ -n $editor_str ]] && ! [[ $editor_str =~ ^\ +$ ]]; then break; fi
+		printf "\033[F"
+	done
+	"$git" config --global --add retrospect.editor "$editor_str"
 }
 
 cmdhelp_rsync() {
