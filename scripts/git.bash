@@ -14,7 +14,7 @@ source_util() { source "$(dirname $0)/.bash-utils/$1.bash" 2>/dev/null || util=$
 source_util os
 source_util prompt
 
-git=$(which -a git | tail -1)
+git=$(which -a git | grep -v $(realpath $0) | tail -1)
 
 #------< Helpers >------#
 print_conflict_diff() {
